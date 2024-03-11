@@ -1,3 +1,28 @@
 .charts {
   margin: 3.2rem auto 0;
 }
+
+.legendList {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .6rem 1.2rem;
+  list-style-type: none;
+  width: 100%;
+}
+
+.legendItem {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.legendItem svg {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.legendItem p {
+  font-size: 1.4rem;
+  font-weight: 500;
+}

@@ -2,7 +2,7 @@
 import styles from '@/app/styles/listitem.module.css'
 
 type Props = {
-  code: string;
+  selected: string[];
   onChange: (value: string) => void;
   pref: {
     prefCode: number;
@@ -10,7 +10,7 @@ type Props = {
   }
 }
 
-const ListItem: React.FC<Props> = ({ code, onChange, pref }) => {
+const ListItem: React.FC<Props> = ({ selected, onChange, pref }) => {
   const onGetPrefectureCode = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value)
   }
@@ -18,12 +18,12 @@ const ListItem: React.FC<Props> = ({ code, onChange, pref }) => {
     <li className={styles.listitem}>
       <div className={styles.checkbox}>
         <input
-          type="radio"
-          name="prefecture"
+          type="checkbox"
+          name={`prefecture_${pref.prefCode}`}
           id={`prefecture_${pref.prefCode}`}
           value={pref.prefCode}
           onChange={onGetPrefectureCode}
-          checked={code === `${pref.prefCode}`}
+          checked={selected.includes(`${pref.prefName}`)}
         />
       </div>
       <div className={styles.labelbox}>

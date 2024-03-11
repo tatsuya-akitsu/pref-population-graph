@@ -2,23 +2,29 @@
 import { Prefectures } from "@/types";
 import ListItem from "./components/ListItem";
 import React, { useEffect, useRef, useState } from "react";
-import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
+import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import listStyles from '@/app/styles/listitem.module.css'
 import layoutStyles from '@/app/styles/layout.module.css'
 import chartsStyles from '@/app/styles/charts.module.css'
 import Tab from "./components/Tab";
 import useWindowSize from "./hooks/resize";
+import { PrefectureNames, colors } from "./constants";
+import OriginalLegend from "./components/OriginalLegend";
 
-type ChartsMap = {
-  [key in Prefectures.Constants.ViewLabel]: number;
-}
+type ChartsData = {
+  [key in Prefectures.Constants.PrefectureName]?: number;
+} & {
+  color: Array<string>;
+  year: number;
+};
 
 const Home: React.FC = () => {
   const [pref, setPref] = useState<Prefectures.Response.List>()
   const [population, setPopulation] = useState<Prefectures.Response.Population>()
   const [data, setData] =
-    useState<Array<{ year: number; } & ChartsMap>>();
+    useState<Array<ChartsData>>();
   const [label, setLabel] = useState<Prefectures.Constants.ViewLabel | string>('')
+  const [selected, setSelected] = useState<Prefectures.Constants.PrefectureName[]>([])
   const [code, setCode] = useState<string>('')
   const width = useWindowSize()
   const isDevFlg = useRef<boolean>(true)
@@ -81,16 +87,44 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     if (label.length !== 0 && population) {
+      const targetPref = pref?.result.filter((p) => `${p.prefCode}` === code)[0].prefName as Prefectures.Constants.PrefectureName
+      setSelected((prev) => [...prev, `${targetPref}`])
+
       const chartData = population?.result.data
         .filter((d) => d.label === label)[0]
         .data.map((d) => {
           return {
             year: d.year,
-            [label]: d.value,
+            population: d.value,
           };
-        }) as Array<{ year: number } & ChartsMap>;
-      console.log(data);
-      setData(chartData);
+        });
+
+      setData((prev) => {
+        if (prev && prev.length) {
+          const data: ChartsData[] = prev.map((item) => {
+            return {
+              ...item,
+              [`${targetPref}`]: chartData.filter(
+                (c) => c.year === item.year
+              )[0].population,
+              color: [
+                ...item.color,
+                colors[PrefectureNames.indexOf(`${targetPref}`)],
+              ],
+            };
+          })
+          return data
+        } else {
+          const data: ChartsData[] = chartData.map((item) => {
+            return {
+              year: item.year,
+              [`${targetPref}`]: item.population,
+              color: [colors[PrefectureNames.indexOf(`${targetPref}`)]],
+            };
+          })
+          return data
+        }
+      })
     }
   }, [label, population])
 
@@ -100,7 +134,7 @@ const Home: React.FC = () => {
         {pref?.result.map((pref, i) => (
           <ListItem
             key={i}
-            code={code}
+            selected={selected}
             onChange={onGetPrefectureCode}
             pref={pref}
           />
@@ -108,30 +142,60 @@ const Home: React.FC = () => {
       </ul>
       {data?.length && (
         <React.Fragment>
-          <Tab current={label} onClick={onChangePrefectureCategory} />
-          <LineChart
+          <Tab
+            current={label}
+            onClick={onChangePrefectureCategory}
+          />
+          <ResponsiveContainer
             className={chartsStyles.charts}
             width={width * 0.75}
             height={width * 0.4}
-            data={data}
           >
-            <CartesianGrid />
-            <XAxis dataKey="year" />
-            <YAxis />
-            <Tooltip
-              formatter={(value) =>
-                new Intl.NumberFormat('ja-JP', {
-                  maximumFractionDigits: 0,
-                }).format(+value)
-              }
-            />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey={label}
-              stroke="#8884d8"
-            />
-          </LineChart>
+            <LineChart
+              width={width * 0.75}
+              height={width * 0.4}
+              data={data}
+            >
+              <CartesianGrid />
+              <XAxis
+                dataKey="year"
+                label={{
+                  value: '年度',
+                  position: 'insideBottomRight',
+                  offset: 0,
+                }}
+                scale="band"
+              />
+              <YAxis
+                label={{ value: label, position: 'insideLeft', angle: -90, offset: 0 }}
+              />
+              <Tooltip
+                formatter={(value) =>
+                  new Intl.NumberFormat('ja-JP', {
+                    maximumFractionDigits: 0,
+                  }).format(+value)
+                }
+              />
+              <Legend
+                align="right"
+                verticalAlign="top"
+                content={<OriginalLegend selected={selected} />}
+                wrapperStyle={{
+                  position: 'inherit',
+                  inset: 'inherit',
+                  float: 'right',
+                }}
+              />
+              {data.map((d, i) => (
+                <Line
+                  key={i}
+                  type="monotone"
+                  dataKey={selected[i]}
+                  stroke={d.color[i]}
+                />
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
         </React.Fragment>
       )}
     </main>
