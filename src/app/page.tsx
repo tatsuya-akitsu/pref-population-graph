@@ -5,7 +5,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
 import listStyles from '@/app/styles/listitem.module.css'
 import layoutStyles from '@/app/styles/layout.module.css'
+import chartsStyles from '@/app/styles/charts.module.css'
 import Tab from "./components/Tab";
+import useWindowSize from "./hooks/resize";
 
 type ChartsMap = {
   [key in Prefectures.Constants.ViewLabel]: number;
@@ -18,6 +20,7 @@ const Home: React.FC = () => {
     useState<Array<{ year: number; } & ChartsMap>>();
   const [label, setLabel] = useState<Prefectures.Constants.ViewLabel | string>('')
   const [code, setCode] = useState<string>('')
+  const width = useWindowSize()
   const isDevFlg = useRef<boolean>(true)
 
   const onFetchPrefectureList = async () => {
@@ -107,8 +110,9 @@ const Home: React.FC = () => {
         <React.Fragment>
           <Tab current={label} onClick={onChangePrefectureCategory} />
           <LineChart
-            width={980}
-            height={657}
+            className={chartsStyles.charts}
+            width={width * 0.75}
+            height={width * 0.4}
             data={data}
           >
             <CartesianGrid />
