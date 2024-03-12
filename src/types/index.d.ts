@@ -16,6 +16,7 @@ export declare namespace Prefectures {
     interface PopulationData {
       label: Constants.ViewLabel;
       data: Array<{
+        rate?: number;
         value: number;
         year: number;
       }>
