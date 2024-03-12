@@ -6,6 +6,11 @@
   width: 80%;
   border-bottom: 1px solid #cbd5e1;
 }
+@media screen and (max-width: 640px) {
+  .list {
+    width: 90%;
+  }
+}
 
 .item {
   cursor: pointer;

@@ -1,5 +1,12 @@
 import { Prefectures } from '@/types';
 
+export const PC_MAX_WIDTH = 1280
+export const SP_MAX_WIDTH = 640
+export const PC_CHART_WIDTH_RATIO = 0.8
+export const PC_CHART_HEIGHT_RATIO = 0.4
+export const SP_CHART_WIDTH_RATIO = 0.9
+export const SP_CHART_HEIGHT_RATIO = 0.6
+
 export const ViewLabels: { label: Prefectures.Constants.ViewLabel }[] = [
   { label: '総人口' },
   { label: '年少人口' },

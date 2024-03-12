@@ -8,8 +8,9 @@ import layoutStyles from '@/app/styles/layout.module.css'
 import chartsStyles from '@/app/styles/charts.module.css'
 import Tab from "./components/Tab";
 import useWindowSize from "./hooks/resize";
-import { PrefectureNames, colors } from "./constants";
+import { PC_CHART_HEIGHT_RATIO, PC_CHART_WIDTH_RATIO, PC_MAX_WIDTH, PrefectureNames, SP_CHART_HEIGHT_RATIO, SP_CHART_WIDTH_RATIO, SP_MAX_WIDTH, colors } from "./constants";
 import OriginalLegend from "./components/OriginalLegend";
+import ChevronIcon from "./components/Chevron";
 
 type ChartsData = {
   [key in Prefectures.Constants.PrefectureName]?: number;
@@ -19,6 +20,7 @@ type ChartsData = {
 };
 
 const Home: React.FC = () => {
+  const [isOpen, setIsOpen] = useState<boolean>(false)
   const [pref, setPref] = useState<Prefectures.Response.List>()
   const [population, setPopulation] = useState<Prefectures.Response.Population>()
   const [data, setData] =
@@ -26,6 +28,8 @@ const Home: React.FC = () => {
   const [label, setLabel] = useState<Prefectures.Constants.ViewLabel>('総人口')
   const [selected, setSelected] = useState<Prefectures.Constants.PrefectureName[]>([])
   const [code, setCode] = useState<string>('')
+  const [chartWidth, setChartWidth] = useState<number>(0)
+  const [chartHeight, setChartHeight] = useState<number>(0)
   const width = useWindowSize()
   const isDevFetchFlg = useRef<boolean>(true)
   const isDevFetchTargetPrefFlg = useRef<boolean>(true)
@@ -206,6 +210,10 @@ const Home: React.FC = () => {
     setLabel(value)
   }
 
+  const onHandleAccordionState = () => {
+    setIsOpen((prev) => !prev)
+  }
+
   useEffect(() => {
     if (process.env.NODE_ENV === 'development' && isDevFetchFlg.current) {
       isDevFetchFlg.current = false;
@@ -253,6 +261,19 @@ const Home: React.FC = () => {
     }
   }, [label])
 
+  useEffect(() => {
+    if (width > PC_MAX_WIDTH) {
+      setChartWidth(Math.round(PC_MAX_WIDTH * PC_CHART_WIDTH_RATIO))
+      setChartHeight(Math.round(PC_MAX_WIDTH * PC_CHART_HEIGHT_RATIO));
+    } else if (width < SP_MAX_WIDTH) {
+      setChartWidth(Math.round(width * SP_CHART_WIDTH_RATIO))
+      setChartHeight(Math.round(width * SP_CHART_HEIGHT_RATIO))
+    } else {
+      setChartWidth(Math.round(width * PC_CHART_WIDTH_RATIO))
+      setChartHeight(Math.round(width * PC_CHART_HEIGHT_RATIO))
+    }
+  }, [width])
+
   return (
     <main className={layoutStyles.container}>
       <ul className={listStyles.list}>
@@ -265,6 +286,28 @@ const Home: React.FC = () => {
           />
         ))}
       </ul>
+      <div className={listStyles.accordion}>
+        <button
+          type="button"
+          className={listStyles.togglebutton}
+          onClick={onHandleAccordionState}
+        >
+          都道府県一覧
+          <ChevronIcon />
+        </button>
+        <div className={`${listStyles.listbox} ${isOpen ? listStyles.isOpen : ''}`}>
+          <ul className={listStyles.accordionlist}>
+            {pref?.result.map((pref, i) => (
+              <ListItem
+                key={i}
+                selected={selected}
+                onChange={onGetPrefectureCode}
+                pref={pref}
+              />
+            ))}
+          </ul>
+        </div>
+      </div>
       {data?.length && (
         <React.Fragment>
           <Tab
@@ -273,12 +316,12 @@ const Home: React.FC = () => {
           />
           <ResponsiveContainer
             className={chartsStyles.charts}
-            width={width * 0.75}
-            height={width * 0.4}
+            width={chartWidth}
+            height={chartHeight}
           >
             <LineChart
-              width={width * 0.75}
-              height={width * 0.4}
+              width={chartWidth}
+              height={chartHeight}
               data={data}
             >
               <CartesianGrid />
