@@ -1,7 +1,9 @@
+import React from 'react'
 import styles from '@/app/styles/icon.module.css'
 
-const ChevronIcon: React.FC = () => (
-  <svg
+const ChevronIcon: React.FC = React.memo(() => {
+  return (
+    <svg
     className={styles.chevron}
     viewBox="0 0 20 20"
     fill="currentColor"
@@ -13,6 +15,8 @@ const ChevronIcon: React.FC = () => (
       clipRule="evenodd"
     ></path>
   </svg>
-);
+  )
+})
 
+ChevronIcon.displayName = 'ChevronIcon'
 export default ChevronIcon

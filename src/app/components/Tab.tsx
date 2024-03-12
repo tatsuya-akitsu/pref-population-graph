@@ -1,4 +1,5 @@
 'use client'
+import React from 'react'
 import { Prefectures } from "@/types"
 import { ViewLabels } from "../constants"
 import styles from '@/app/styles/tab.module.css'
@@ -8,7 +9,7 @@ type Props = {
   onClick: (value: Prefectures.Constants.ViewLabel) => void
 }
 
-const Tab: React.FC<Props> = ({ current, onClick }) => {
+const Tab: React.FC<Props> = React.memo(({ current, onClick }) => {
   return (
     <ul className={styles.list}>
       {ViewLabels.map((item, i) => (
@@ -22,6 +23,7 @@ const Tab: React.FC<Props> = ({ current, onClick }) => {
       ))}
     </ul>
   );
-}
+})
 
+Tab.displayName = 'Tab'
 export default Tab
