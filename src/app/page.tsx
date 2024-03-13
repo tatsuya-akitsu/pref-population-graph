@@ -238,7 +238,6 @@ const Home: React.FC = () => {
       const onFetchPopulation = async () => {
         const res = await onFetchPrefecturePopulation();
         const data: Prefectures.Response.Population = await res.json()
-        console.log(JSON.stringify(data))
         setPopulation(data)
       }
       onFetchPopulation()
@@ -252,10 +251,12 @@ const Home: React.FC = () => {
       isDevPublishPrefFlg.current = false;
       return;
     }
-    if (population) {
-      onPublishPrefecturePopulation()
+    if (population && code.length !== 0) {
+      if (process.env.NODE_ENV !== 'test') {
+        onPublishPrefecturePopulation()
+      }
     }
-  }, [population])
+  }, [code, population])
 
   useEffect(() => {
     if (
