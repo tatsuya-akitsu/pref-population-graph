@@ -16,9 +16,13 @@ const Tab: React.FC<Props> = React.memo(({ current, onClick }) => {
         <li
           key={i}
           className={`${styles.item} ${current === item.label ? styles.isCurrent : ''}`}
-          onClick={() => onClick(item.label)}
         >
-          {item.label}
+          <button
+            type="button"
+            onClick={() => onClick(item.label)}
+          >
+            {item.label}
+          </button>
         </li>
       ))}
     </ul>

@@ -252,9 +252,7 @@ const Home: React.FC = () => {
       return;
     }
     if (population && code.length !== 0) {
-      if (process.env.NODE_ENV !== 'test') {
-        onPublishPrefecturePopulation()
-      }
+      onPublishPrefecturePopulation();
     }
   }, [code, population])
 

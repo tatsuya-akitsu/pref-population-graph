@@ -19,6 +19,7 @@ const config: Config = {
     '^.+\\.(ts|tsx)$': 'ts-jest',
     '^.+\\.(js|jsx)$': ['babel-jest', { presets: ['next/babel'] }],
   },
+  transformIgnorePatterns: ['/node_modules/(?!@babel|d3-*|internmap)'],
   globals: {
     'ts-jest': {
       tsconfig: {
