@@ -31,6 +31,8 @@ const Home: React.FC = () => {
   const [chartWidth, setChartWidth] = useState<number>(0)
   const [chartHeight, setChartHeight] = useState<number>(0)
   const width = useWindowSize()
+  const [isFetched, setIsFetched] = useState<boolean>(false)
+  const [isSPMode, setIsSPMode] = useState<boolean>(false)
   const isDevFetchFlg = useRef<boolean>(true)
   const isDevFetchTargetPrefFlg = useRef<boolean>(true)
   const isDevPublishPrefFlg = useRef<boolean>(true)
@@ -49,7 +51,6 @@ const Home: React.FC = () => {
       }
     );
     const data = await res.json()
-    console.log(JSON.stringify(data))
     setPref(data)
   }
 
@@ -216,11 +217,16 @@ const Home: React.FC = () => {
   }
 
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && isDevFetchFlg.current) {
+    if (
+      process.env.NODE_ENV === 'development' && isDevFetchFlg.current
+    ) {
       isDevFetchFlg.current = false;
       return;
     }
-    onFetchPrefectureList()
+    if (!isFetched) {
+      onFetchPrefectureList()
+      setIsFetched(true)
+    }
   }, [])
 
   useEffect(() => {
@@ -232,6 +238,7 @@ const Home: React.FC = () => {
       const onFetchPopulation = async () => {
         const res = await onFetchPrefecturePopulation();
         const data: Prefectures.Response.Population = await res.json()
+        console.log(JSON.stringify(data))
         setPopulation(data)
       }
       onFetchPopulation()
@@ -240,8 +247,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     if (
-      process.env.NODE_ENV === 'development' &&
-      isDevPublishPrefFlg.current
+      process.env.NODE_ENV === 'development'&& isDevPublishPrefFlg.current
     ) {
       isDevPublishPrefFlg.current = false;
       return;
@@ -252,7 +258,9 @@ const Home: React.FC = () => {
   }, [population])
 
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && isDevUpdateLabelFlg.current) {
+    if (
+      process.env.NODE_ENV === 'development' && isDevUpdateLabelFlg.current
+    ) {
       isDevUpdateLabelFlg.current = false;
       return;
     }
@@ -266,12 +274,15 @@ const Home: React.FC = () => {
     if (width > PC_MAX_WIDTH) {
       setChartWidth(Math.round(PC_MAX_WIDTH * PC_CHART_WIDTH_RATIO))
       setChartHeight(Math.round(PC_MAX_WIDTH * PC_CHART_HEIGHT_RATIO));
+      setIsSPMode(false)
     } else if (width < SP_MAX_WIDTH) {
       setChartWidth(Math.round(width * SP_CHART_WIDTH_RATIO))
       setChartHeight(Math.round(width * SP_CHART_HEIGHT_RATIO))
+      setIsSPMode(true)
     } else {
       setChartWidth(Math.round(width * PC_CHART_WIDTH_RATIO))
       setChartHeight(Math.round(width * PC_CHART_HEIGHT_RATIO))
+      setIsSPMode(false)
     }
   }, [width])
 
@@ -289,30 +300,32 @@ const Home: React.FC = () => {
             />
           ))}
         </ul>
-        <div className={listStyles.accordion}>
-          <button
-            type="button"
-            className={listStyles.togglebutton}
-            onClick={onHandleAccordionState}
-          >
-            都道府県一覧
-            <ChevronIcon />
-          </button>
-          <div
-            className={`${listStyles.listbox} ${isOpen ? listStyles.isOpen : ''}`}
-          >
-            <ul className={listStyles.accordionlist}>
-              {pref?.result.map((pref, i) => (
-                <ListItem
-                  key={i}
-                  selected={selected}
-                  onChange={onGetPrefectureCode}
-                  pref={pref}
-                />
-              ))}
-            </ul>
+        {isSPMode && (
+          <div className={listStyles.accordion}>
+            <button
+              type="button"
+              className={listStyles.togglebutton}
+              onClick={onHandleAccordionState}
+            >
+              都道府県一覧
+              <ChevronIcon />
+            </button>
+            <div
+              className={`${listStyles.listbox} ${isOpen ? listStyles.isOpen : ''}`}
+            >
+              <ul className={listStyles.accordionlist}>
+                {pref?.result.map((pref, i) => (
+                  <ListItem
+                    key={i}
+                    selected={selected}
+                    onChange={onGetPrefectureCode}
+                    pref={pref}
+                  />
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
+        )}
         {data?.length && (
           <React.Fragment>
             <Tab
