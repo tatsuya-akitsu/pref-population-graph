@@ -49,6 +49,7 @@ const Home: React.FC = () => {
       }
     );
     const data = await res.json()
+    console.log(JSON.stringify(data))
     setPref(data)
   }
 
@@ -275,103 +276,108 @@ const Home: React.FC = () => {
   }, [width])
 
   return (
-    <main className={layoutStyles.container}>
-      <ul className={listStyles.list}>
-        {pref?.result.map((pref, i) => (
-          <ListItem
-            key={i}
-            selected={selected}
-            onChange={onGetPrefectureCode}
-            pref={pref}
-          />
-        ))}
-      </ul>
-      <div className={listStyles.accordion}>
-        <button
-          type="button"
-          className={listStyles.togglebutton}
-          onClick={onHandleAccordionState}
-        >
-          都道府県一覧
-          <ChevronIcon />
-        </button>
-        <div className={`${listStyles.listbox} ${isOpen ? listStyles.isOpen : ''}`}>
-          <ul className={listStyles.accordionlist}>
-            {pref?.result.map((pref, i) => (
-              <ListItem
-                key={i}
-                selected={selected}
-                onChange={onGetPrefectureCode}
-                pref={pref}
-              />
-            ))}
-          </ul>
-        </div>
-      </div>
-      {data?.length && (
-        <React.Fragment>
-          <Tab
-            current={label}
-            onClick={onChangePopulationCategory}
-          />
-          <ResponsiveContainer
-            className={chartsStyles.charts}
-            width={chartWidth}
-            height={chartHeight}
+    <React.Fragment>
+      <header>都道府県別人口推移グラフ</header>
+      <main className={layoutStyles.container}>
+        <ul className={listStyles.list}>
+          {pref?.result.map((pref, i) => (
+            <ListItem
+              key={i}
+              selected={selected}
+              onChange={onGetPrefectureCode}
+              pref={pref}
+            />
+          ))}
+        </ul>
+        <div className={listStyles.accordion}>
+          <button
+            type="button"
+            className={listStyles.togglebutton}
+            onClick={onHandleAccordionState}
           >
-            <LineChart
-              width={chartWidth}
-              height={chartHeight}
-              data={data}
-            >
-              <CartesianGrid />
-              <XAxis
-                dataKey="year"
-                label={{
-                  value: '年度',
-                  position: 'insideBottomRight',
-                  offset: 0,
-                }}
-                scale="band"
-              />
-              <YAxis
-                label={{
-                  value: label,
-                  position: 'insideLeft',
-                  angle: -90,
-                  offset: 0,
-                }}
-              />
-              <Tooltip
-                formatter={(value) =>
-                  new Intl.NumberFormat('ja-JP', {
-                    maximumFractionDigits: 0,
-                  }).format(+value)
-                }
-              />
-              <Legend
-                align="right"
-                verticalAlign="top"
-                content={<OriginalLegend selected={selected} />}
-                wrapperStyle={{
-                  position: 'inherit',
-                  inset: 'inherit',
-                  float: 'right',
-                }}
-              />
-              {data.map((d, i) => (
-                <Line
+            都道府県一覧
+            <ChevronIcon />
+          </button>
+          <div
+            className={`${listStyles.listbox} ${isOpen ? listStyles.isOpen : ''}`}
+          >
+            <ul className={listStyles.accordionlist}>
+              {pref?.result.map((pref, i) => (
+                <ListItem
                   key={i}
-                  type="monotone"
-                  dataKey={selected[i]}
-                  stroke={d.color[i]}
+                  selected={selected}
+                  onChange={onGetPrefectureCode}
+                  pref={pref}
                 />
               ))}
-            </LineChart>
-          </ResponsiveContainer>
-        </React.Fragment>
-      )}
-    </main>
+            </ul>
+          </div>
+        </div>
+        {data?.length && (
+          <React.Fragment>
+            <Tab
+              current={label}
+              onClick={onChangePopulationCategory}
+            />
+            <ResponsiveContainer
+              className={chartsStyles.charts}
+              width={chartWidth}
+              height={chartHeight}
+            >
+              <LineChart
+                width={chartWidth}
+                height={chartHeight}
+                data={data}
+              >
+                <CartesianGrid />
+                <XAxis
+                  dataKey="year"
+                  label={{
+                    value: '年度',
+                    position: 'insideBottomRight',
+                    offset: 0,
+                  }}
+                  scale="band"
+                />
+                <YAxis
+                  label={{
+                    value: label,
+                    position: 'insideLeft',
+                    angle: -90,
+                    offset: 0,
+                  }}
+                />
+                <Tooltip
+                  formatter={(value) =>
+                    new Intl.NumberFormat('ja-JP', {
+                      maximumFractionDigits: 0,
+                    }).format(+value)
+                  }
+                />
+                <Legend
+                  align="right"
+                  verticalAlign="top"
+                  content={<OriginalLegend selected={selected} />}
+                  wrapperStyle={{
+                    position: 'inherit',
+                    inset: 'inherit',
+                    float: 'right',
+                  }}
+                />
+                {data.map((d, i) => (
+                  <Line
+                    key={i}
+                    type="monotone"
+                    dataKey={selected[i]}
+                    stroke={d.color[i]}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </React.Fragment>
+        )}
+      </main>
+    </React.Fragment>
   );
 }
 
