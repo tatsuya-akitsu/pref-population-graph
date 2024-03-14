@@ -4,6 +4,7 @@ import ListItem from "./components/ListItem";
 import React, { useEffect, useRef, useState } from "react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import listStyles from '@/app/styles/listitem.module.css'
+import headerStyles from '@/app/styles/header.module.css'
 import layoutStyles from '@/app/styles/layout.module.css'
 import chartsStyles from '@/app/styles/charts.module.css'
 import Tab from "./components/Tab";
@@ -286,110 +287,110 @@ const Home: React.FC = () => {
   }, [width])
 
   return (
-    <React.Fragment>
-      <header>都道府県別人口推移グラフ</header>
-      <main className={layoutStyles.container}>
-        <ul className={listStyles.list}>
-          {pref?.result.map((pref, i) => (
-            <ListItem
-              key={i}
-              selected={selected}
-              onChange={onGetPrefectureCode}
-              pref={pref}
-            />
-          ))}
-        </ul>
-        {isSPMode && (
-          <div className={listStyles.accordion}>
-            <button
-              type="button"
-              className={listStyles.togglebutton}
-              onClick={onHandleAccordionState}
-            >
-              都道府県一覧
-              <ChevronIcon />
-            </button>
-            <div
-              className={`${listStyles.listbox} ${isOpen ? listStyles.isOpen : ''}`}
-            >
-              <ul className={listStyles.accordionlist}>
-                {pref?.result.map((pref, i) => (
-                  <ListItem
-                    key={i}
-                    selected={selected}
-                    onChange={onGetPrefectureCode}
-                    pref={pref}
-                  />
-                ))}
-              </ul>
-            </div>
+    <main className={layoutStyles.container}>
+      <header className={headerStyles.header}>
+        <h1>都道府県別人口推移グラフ</h1>
+      </header>
+      <ul className={listStyles.list}>
+        {pref?.result.map((pref, i) => (
+          <ListItem
+            key={i}
+            selected={selected}
+            onChange={onGetPrefectureCode}
+            pref={pref}
+          />
+        ))}
+      </ul>
+      {isSPMode && (
+        <div className={listStyles.accordion}>
+          <button
+            type="button"
+            className={listStyles.togglebutton}
+            onClick={onHandleAccordionState}
+          >
+            都道府県一覧
+            <ChevronIcon />
+          </button>
+          <div
+            className={`${listStyles.listbox} ${isOpen ? listStyles.isOpen : ''}`}
+          >
+            <ul className={listStyles.accordionlist}>
+              {pref?.result.map((pref, i) => (
+                <ListItem
+                  key={i}
+                  selected={selected}
+                  onChange={onGetPrefectureCode}
+                  pref={pref}
+                />
+              ))}
+            </ul>
           </div>
-        )}
-        {data?.length && (
-          <React.Fragment>
-            <Tab
-              current={label}
-              onClick={onChangePopulationCategory}
-            />
-            <ResponsiveContainer
-              className={chartsStyles.charts}
+        </div>
+      )}
+      {data?.length && (
+        <React.Fragment>
+          <Tab
+            current={label}
+            onClick={onChangePopulationCategory}
+          />
+          <ResponsiveContainer
+            className={chartsStyles.charts}
+            width={chartWidth}
+            height={chartHeight}
+          >
+            <LineChart
               width={chartWidth}
               height={chartHeight}
+              data={data}
             >
-              <LineChart
-                width={chartWidth}
-                height={chartHeight}
-                data={data}
-              >
-                <CartesianGrid />
-                <XAxis
-                  dataKey="year"
-                  label={{
-                    value: '年度',
-                    position: 'insideBottomRight',
-                    offset: 0,
-                  }}
-                  scale="band"
+              <CartesianGrid />
+              <XAxis
+                dataKey="year"
+                label={{
+                  value: '年度',
+                  position: 'insideBottomRight',
+                  offset: 0,
+                }}
+                scale="band"
+              />
+              <YAxis
+                label={{
+                  value: label,
+                  position: 'insideLeft',
+                  angle: -90,
+                  offset: 0,
+                }}
+              />
+              <Tooltip
+                formatter={(value) =>
+                  new Intl.NumberFormat('ja-JP', {
+                    maximumFractionDigits: 0,
+                  }).format(+value)
+                }
+              />
+              <Legend
+                align="right"
+                verticalAlign="top"
+                content={<OriginalLegend selected={selected} />}
+                wrapperStyle={{
+                  position: 'inherit',
+                  inset: 'inherit',
+                  float: 'right',
+                }}
+              />
+              {data.map((d, i) => (
+                <Line
+                  key={i}
+                  type="monotone"
+                  dataKey={selected[i]}
+                  stroke={d.color[i]}
                 />
-                <YAxis
-                  label={{
-                    value: label,
-                    position: 'insideLeft',
-                    angle: -90,
-                    offset: 0,
-                  }}
-                />
-                <Tooltip
-                  formatter={(value) =>
-                    new Intl.NumberFormat('ja-JP', {
-                      maximumFractionDigits: 0,
-                    }).format(+value)
-                  }
-                />
-                <Legend
-                  align="right"
-                  verticalAlign="top"
-                  content={<OriginalLegend selected={selected} />}
-                  wrapperStyle={{
-                    position: 'inherit',
-                    inset: 'inherit',
-                    float: 'right',
-                  }}
-                />
-                {data.map((d, i) => (
-                  <Line
-                    key={i}
-                    type="monotone"
-                    dataKey={selected[i]}
-                    stroke={d.color[i]}
-                  />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
-          </React.Fragment>
-        )}
-      </main>
-    </React.Fragment>
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
+        </React.Fragment>
+      )}
+    </main>
   );
 }
 
