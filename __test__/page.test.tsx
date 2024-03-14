@@ -190,6 +190,9 @@ describe('Home', () => {
         const tab = await screen.findByText(ViewLabels[1].label);
         fireEvent.click(tab)
         expect(tab.parentElement?.className.includes('isCurrent')).toBe(true)
+
+        const yAxisLabel = await screen.findAllByText(ViewLabels[1].label);
+        expect(yAxisLabel[1]).toBeInTheDocument()
       })
     });
   });
